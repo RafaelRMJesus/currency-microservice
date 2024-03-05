@@ -1,17 +1,14 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
+	"flag"
 )
 
 func main() {
+	listenAddr := flag.String("listenAddr", ":3000", "listen address the service is running")
+	flag.Parse()
 	svc := NewLoggingService(NewMetricService(&priceFetcher{}))
-	price, err := svc.FetchPrice(context.Background(), "BTC")
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	fmt.Println(price)
+	server := NewJSONApiServer(*listenAddr, svc)
+	server.Run()
 }
