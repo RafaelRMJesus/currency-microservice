@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"math/rand"
 	"net/http"
+
+	"github.com/RafaelRMJesus/currency-microservice/types"
 )
 
 type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
@@ -12,11 +14,6 @@ type APIFunc func(context.Context, http.ResponseWriter, *http.Request) error
 type JSONAPIServer struct {
 	listenAddr string
 	svc        PriceFetcher
-}
-
-type PriceResponse struct {
-	Ticker string  `json:"ticker"`
-	Price  float64 `json:"price"`
 }
 
 func NewJSONApiServer(listenAddr string, svc PriceFetcher) *JSONAPIServer {
@@ -33,7 +30,7 @@ func (s *JSONAPIServer) Run() {
 
 func makeHTTPHandlerFunc(apiFn APIFunc) http.HandlerFunc {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, "resquestID", rand.Intn(10000000000))
+	ctx = context.WithValue(ctx, "resquestID", rand.Intn(10000))
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := apiFn(ctx, w, r); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
@@ -48,7 +45,7 @@ func (s *JSONAPIServer) handleFetchPrice(ctx context.Context, w http.ResponseWri
 	if err != nil {
 		return err
 	}
-	priceResp := PriceResponse{
+	priceResp := types.PriceResponse{
 		Price:  price,
 		Ticker: ticker,
 	}
