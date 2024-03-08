@@ -1,0 +1,14 @@
+FROM golang
+
+WORKDIR /app
+
+COPY go.mod ./
+COPY go.sum ./
+
+COPY . ./
+
+RUN go build -o /currency-microservice
+
+EXPOSE 3000
+
+CMD ["/currency-microservice"]

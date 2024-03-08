@@ -30,6 +30,14 @@ func (c *Client) FetchPrice(ctx context.Context, ticker string) (*types.PriceRes
 		return nil, err
 	}
 
+	if res.StatusCode != http.StatusOK {
+		httpErr := map[string]any{}
+		if err := json.NewDecoder(res.Body).Decode(&httpErr); err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("service responsed with non OK status code: %s", httpErr["error"])
+	}
+
 	priceRes := new(types.PriceResponse)
 	if err := json.NewDecoder(res.Body).Decode(priceRes); err != nil {
 		return nil, err
